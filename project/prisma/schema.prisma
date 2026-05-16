@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       String  @id @default(cuid())
+  name     String?
+  email    String  @unique
+  password String
+  contact  String?
+
+  userBodyDetails UserBodyDetails?
+
+  workoutPlans   WorkoutPlan[]
+  workouts       Workout[]
+  foodLogs       FoodLog[]
+  dailySummaries DailySummary[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  foodPlans FoodPlan[]
+}
+
+model UserBodyDetails {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  age             Int
+  gender          String
+  weight          Float // Initial weight
+  height          Float
+  bloodGroup      String?
+  diet            String // Veg, Non-veg, etc.
+  activity        String // Sedentary, Moderate, Active
+  sleepHours      Int      @default(7)
+  hydration       Float    @default(2.0)
+  profession      String?
+  goal            String   @default("Maintenance")
+  allergies       String[]
+  chronicDiseases String[]
+  habits          String[]
+  onTreatment     Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Workout {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  plan   WorkoutPlan? @relation(fields: [planId], references: [id])
+  planId String?
+
+  name     String
+  type     String?
+  duration Int
+  reps     Int?
+  sets     Int?
+  calories Float?
+
+  date DateTime @default(now())
+
+  createdAt DateTime @default(now())
+}
+
+model WorkoutPlan {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  startDate DateTime @default(now())
+  endDate   DateTime
+
+  workouts Workout[]
+
+  createdAt DateTime @default(now())
+}
+
+model FoodPlan {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  startDate DateTime @default(now())
+  endDate   DateTime
+
+  foods FoodLog[]
+
+  createdAt DateTime @default(now())
+}
+
+model FoodLog {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  foodName String
+  calories Float
+  protein  Float?
+  carbs    Float?
+  fats     Float?
+
+  mealType String // breakfast, lunch, dinner, snack
+  quantity String?
+
+  date DateTime @default(now())
+
+  foodPlan   FoodPlan? @relation(fields: [foodPlanId], references: [id])
+  foodPlanId String?
+
+  createdAt DateTime @default(now())
+}
+
+model DailySummary {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  date DateTime
+
+  totalCaloriesIn  Float
+  totalCaloriesOut Float
+  steps            Int
+  sleepHours       Float
+
+  createdAt DateTime @default(now())
+}
+
+model ExerciseLibrary {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  category    String // e.g., "Strength", "Yoga", "Cardio"
+  difficulty  String // e.g., "Beginner", "Intermediate", "Advanced"
+  goal        String // e.g., "Weight Loss", "Muscle Gain"
+  description String?
+
+  recommendedSets Int? @default(3)
+  recommendedReps Int? @default(12)
+
+  // Cardio/Yoga/Meditation ke liye
+  recommendedDuration Int? // Minutes mein (e.g., 10, 20)
+
+  caloriesPerMin Float @default(5.0)
+
+  createdAt DateTime @default(now())
+}
+
+model FoodLibrary {
+  id String @id @default(uuid())
+
+  foodName String @unique
+  calories Float
+  protein  Float?
+  carbs    Float?
+  fats     Float?
+
+  mealType MealType
+  quantity String?
+
+  goals Goal[] // multiple goals allowed (Weight Loss, Gain, etc.)
+
+  description String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum MealType {
+  breakfast
+  lunch
+  dinner
+  snack
+  anytime
+  night
+}
+
+enum Goal {
+  WeightLoss
+  WeightGain
+  MuscleGain
+  Maintenance
+  Healthy
+  Common
+}
