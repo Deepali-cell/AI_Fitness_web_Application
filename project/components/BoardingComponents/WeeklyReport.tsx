@@ -1,6 +1,5 @@
 "use client";
 
-import axios from "axios";
 import { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
@@ -37,13 +36,13 @@ const WeeklyChart = () => {
   useEffect(() => {
     const fetchSummary = async () => {
       if (weeklyData) {
-        setChartData(weeklyData);
+        setChartData(weeklyData?.data || []);
       }
     };
     fetchSummary();
   }, [weeklyData]);
 
-  const labels = chartData.map((d) => d.date);
+  const labels = (chartData || []).map((d) => d.date);
 
   const data: ChartData<"bar" | "line"> = {
     labels,
