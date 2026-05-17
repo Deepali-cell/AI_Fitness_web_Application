@@ -15,6 +15,9 @@ FEATURES = [
     'age', 'gender', 'bmi', 'avg_steps', 'avg_sleep', 
     'net_calories', 'chronic_diseases', 'on_treatment', 'activity_level'
 ]
+@app.route('/')
+def home():
+    return "Flask API is running!"
 
 @app.route('/predict', methods=['POST'])
 def predict():
